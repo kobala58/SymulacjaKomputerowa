@@ -21,7 +21,7 @@ class Map:
             case Directions.LEFT:
                 self.wind_direction_symbol = "<"
             case Directions.RIGHT:
-                self.wind_direction_symbol = "<"
+                self.wind_direction_symbol = ">"
             case _:
                 raise ValueError
         self.wind_table_generator() # CREATE AN (x,y) -> val relation 
@@ -63,6 +63,8 @@ class Map:
     
     def show_map(self, marked_drone_path: bool) -> None:
         import matplotlib.pyplot as plt
+        
+        #perform base drawing of generated map
 
         fig = plt.figure(figsize=(12,12), dpi=100)
         ax1 = fig.add_subplot(111)
@@ -72,6 +74,12 @@ class Map:
                     ax1.plot(point[0], point[1], color="green", marker=self.wind_direction_symbol)
                 else:
                     ax1.plot(point[0], point[1], color="gray", marker="o")
+        
+        if marked_drone_path:
+            # TODO: create drone path
+            pass
+
+
         plt.show()
         
     

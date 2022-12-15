@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from utils import Directions
 
 class BatteryException(Exception):
     #TODO: stats dump to pdf
@@ -6,7 +7,7 @@ class BatteryException(Exception):
 
 @dataclass()
 class Drone:
-    # TODO: rewrite Directions from string to Enum Class 
+    # TODO: rewrite Directions from 
     battery: float
     battery_usage: float
     photo_radius: int
@@ -50,7 +51,7 @@ class Drone:
         """
         return 0
 
-    def move(self, direction: str) -> None:
+    def move(self, direction: Directions) -> None:
         """
         method to move drone one unit in selected direction
         """
@@ -65,23 +66,26 @@ class Drone:
         else:
             factor = [1,1,1,1]
         try:
-            if direction == "u":
-                self.drain_battery(factor[0])
-                self.x += 1
-            elif direction == "d":
-                self.drain_battery(factor[1])
-                self.x -= 1
-            elif direction == "l":
-                self.drain_battery(factor[2])
-                self.y -= 1
-            elif direction == "r":
-                self.drain_battery(factor[3])
-                self.y += 1
+            match direction:
+                case Directions.UP:
+                    self.drain_battery(factor[0])
+                    self.y += 1
+                case Directions.DOWN:
+                    self.drain_battery(factor[1])
+                    self.y -= 1
+                case Directions.LEFT:
+                    self.drain_battery(factor[2])
+                    self.x -= 1
+                case Directions.RIGHT:
+                    self.drain_battery(factor[3])
+                    self.x += 1
+                case _:
+                    raise ValueError("Direction do not match!")
 
         except BatteryException:
             print("Battery ends, sadge")
 
-    def move_seps(self, size: int, direction: str) -> bool:
+    def move_seps(self, size: int, direction: Directions, take_photo: bool = True) -> bool:
         """
         method to move drone x units on selected direction
         """
@@ -94,7 +98,8 @@ class Drone:
                 }
         for _ in range(size):
             try:
-                self.take_photo()
+                if take_photo:
+                    self.take_photo()
                 self.move(direction=direction)
             except BatteryException:
                 return False
@@ -120,8 +125,16 @@ class Drone:
             case _:
                 distance = -1
 
-        return distance 
-        
+        return distance
+
+    def move_photo_radius(self, direction: Directions):
+        """
+        move over direction on photo radius units
+        """
+        self.move_seps(size = self.photo_radius + 1,
+                direction = direction,
+                take_photo=False
+                )
     
     def boundary_detector(self, size, direction) -> bool:
         """
