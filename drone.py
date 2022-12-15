@@ -35,15 +35,24 @@ class Drone:
         text = f"Position ({self.x},{self.y})\n Battery: ({self.battery})"
         return text
 
-    def drain_battery(self, factor):
+    def drain_battery(self, factor) -> None:
+        """
+        Handler for battery drain, raises BatteryException when empty
+        """
         self.battery -= (self.battery_usage * factor).__round__(2)
         if self.battery <= 0:
             raise BatteryException
     
-    def get_wind_val(self):
+    def get_wind_val(self) -> int:
+        """
+        Return value of wind on drone coords
+        """
         return 0
 
-    def move(self, direction: str):
+    def move(self, direction: str) -> None:
+        """
+        method to move drone one unit in selected direction
+        """
         factor = []
         wind_val = self.get_wind_val()
         if wind_val != 0:
@@ -71,17 +80,21 @@ class Drone:
         except BatteryException:
             print("Battery ends, sadge")
 
-    def move_seps(self, size, direction):
+    def move_seps(self, size: int, direction: str) -> bool:
+        """
+        method to move drone x units on selected direction
+        """
         self.__iner_task__ = {
                 "direction": direction,
                 "size": size
                 }
-        for x in range(size):
+        for _ in range(size):
             try:
                 self.take_photo()
                 self.move(direction=direction)
             except BatteryException:
                 return False
+        return True
     
     def calc_dist_to_boundary(self, direction: str) -> int:
         """
@@ -93,4 +106,5 @@ class Drone:
         
 
     def take_photo(self):
+        """method simulating photo taking"""
         self.drain_battery(0.1)
