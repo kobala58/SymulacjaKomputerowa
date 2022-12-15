@@ -6,6 +6,7 @@ class BatteryException(Exception):
 
 @dataclass()
 class Drone:
+    # TODO: rewrite Directions from string to Enum Class 
     battery: float
     battery_usage: float
     photo_radius: int
@@ -84,6 +85,9 @@ class Drone:
         """
         method to move drone x units on selected direction
         """
+        if not self.boundary_detector(size, direction):
+            return False
+
         self.__iner_task__ = {
                 "direction": direction,
                 "size": size
@@ -100,10 +104,33 @@ class Drone:
         """
         Calculate distance to boudary in selected direction
         """
-        distance = 0
+        match direction:
+            case "l":
+                distance = self.x
+            
+            case "r":
+                distance = self.map_size - 1 - self.x
+
+            case "u":
+                distance = self.map_size - 1 - self.y
+
+            case "d":
+                distance = self.y
+
+            case _:
+                distance = -1
 
         return distance 
         
+    
+    def boundary_detector(self, size, direction) -> bool:
+        """
+        check if move_seps can be perfomed within boundaries
+        """
+        if size <= self.calc_dist_to_boundary(direction):
+            return True
+        else:
+            return False
 
     def take_photo(self):
         """method simulating photo taking"""
