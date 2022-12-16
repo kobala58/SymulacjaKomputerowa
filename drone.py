@@ -105,21 +105,21 @@ class Drone:
                 return False
         return True
     
-    def calc_dist_to_boundary(self, direction: str) -> int:
+    def calc_dist_to_boundary(self, direction: Directions) -> int:
         """
         Calculate distance to boudary in selected direction
         """
         match direction:
-            case "l":
+            case Directions.LEFT:
                 distance = self.x
             
-            case "r":
+            case Directions.RIGHT:
                 distance = self.map_size - 1 - self.x
 
-            case "u":
+            case Directions.UP:
                 distance = self.map_size - 1 - self.y
 
-            case "d":
+            case Directions.DOWN:
                 distance = self.y
 
             case _:
