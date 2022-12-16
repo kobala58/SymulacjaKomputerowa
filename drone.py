@@ -13,7 +13,7 @@ class Drone:
     photo_radius: int
     overlap: float
     move_method: str
-    wind_direction: str
+    wind_direction: Directions
     map_size: int
     wind_start: int
     wind_stop: int
@@ -36,6 +36,16 @@ class Drone:
         print(self.__iner_task__)
         text = f"Position ({self.x},{self.y})\n Battery: ({self.battery})"
         return text
+
+    def set_starting_poing(self, x, y) -> list:
+        """
+        method set drone on given coords
+        """
+        if (0<=x<=self.map_size) and (0<=y<=self.map_size):
+            return [x,y]
+        else:
+            raise ValueError(f"Drone needs to be placed within the boundary [{0},{self.map_size}], given parameters -> ({x},{y})")
+
 
     def drain_battery(self, factor) -> None:
         """
