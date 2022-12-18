@@ -8,6 +8,8 @@ class BatteryException(Exception):
 @dataclass()
 class Drone:
     # TODO: rewrite Directions from 
+    # comment
+
     battery: float
     battery_usage: float
     photo_radius: int
