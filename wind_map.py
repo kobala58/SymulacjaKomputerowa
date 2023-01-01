@@ -17,6 +17,7 @@ class Map:
     def __post_init__(self):
         self.beg = random.randint(0, self.size - self.wind_size) # select random begining of wind stream
         self.wind_direction = random.choice([Directions.LEFT, Directions.RIGHT])
+        self.drone_map = None
         match self.wind_direction: # assign symbol for futher plot creation 
             case Directions.LEFT:
                 self.wind_direction_symbol = "<"
@@ -61,6 +62,10 @@ class Map:
                     return point[2]
         raise ValueError("Point not found")
     
+    def upload_drone_movent(self,history: list):
+        self.drone_map = history
+
+
     def show_map(self, marked_drone_path: bool) -> None:
         import matplotlib.pyplot as plt
         
@@ -75,8 +80,9 @@ class Map:
                 else:
                     ax1.plot(point[0], point[1], color="gray", marker="o")
         
-        if marked_drone_path:
-            # TODO: create drone path
+        if marked_drone_path and self.drone_map:
+            for point in self.drone_map:
+                ax1.plot(point[0], point[1], color="yellow", marker="o")
             pass
 
 
@@ -90,6 +96,7 @@ class Map:
 
 
 if __name__ == "__main__":
+
     map = Map(
             size = 50,
             wind_size= 20,
