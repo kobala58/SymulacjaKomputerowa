@@ -1,9 +1,13 @@
 from dataclasses import dataclass, field
 from utils import Directions
+from wind_map import Map
 
 class BatteryException(Exception):
     #TODO: stats dump to pdf
     pass
+
+
+
 
 @dataclass()
 class Drone:
@@ -25,13 +29,14 @@ class Drone:
 
     def __post_init__(self):
         self.__iner_task__ = {"staus": "none"}
+        self.points = []
         match self.move_method:
             case "v":
-                self.x = int(self.photo_radius)+1
+                self.x = 0 # need to refractor this
                 self.y = 0
             case "h":
                 self.x = 0
-                self.y = int(self.photo_radius)+1
+                self.y = 0
 
 
     def __str__(self) -> str:
@@ -69,6 +74,11 @@ class Drone:
         """
         factor = []
         wind_val = self.get_wind_val()
+        
+        # take photo before movent
+
+        self.take_photo()
+
         if wind_val != 0:
             match self.wind_direction:
                 case "l":
@@ -96,6 +106,8 @@ class Drone:
 
         except BatteryException:
             print("Battery ends, sadge")
+
+        self.points.append([self.x, self.y])
 
     def move_seps(self, size: int, direction: Directions, take_photo: bool = True) -> bool:
         """
@@ -158,5 +170,42 @@ class Drone:
             return False
 
     def take_photo(self):
-        """method simulating photo taking"""
+        """
+            method simulating photo taking
+        """
+        # TODO
+        photo_points = [
+                [x,y] for x in range(self.x-self.photo_radius, self.x+self.photo_radius) for y in range(self.y-self.photo_radius, self.y+self.photo_radius)
+               ]
+
         self.drain_battery(0.1)
+
+    def export_points(self):
+        return self.points
+
+@dataclass()
+class Camera:
+    """
+        create parameters for camera
+    """
+    pass
+
+
+@dataclass()
+class BlackBox:
+    """ 
+        class for storing data about drone position, photo data and  batteryu status 
+    """
+
+    map: Map
+    drone: Drone
+
+
+    def __post_init__(self):
+        self.data = []
+    
+    def save_data(self, pos: list, battery: float, photo: list):
+        self.data.append([pos, battery, photo])
+    
+    def __str__(self):
+        return str(self.data)
