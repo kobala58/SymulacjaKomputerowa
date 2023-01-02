@@ -41,7 +41,6 @@ class Horizontal(Route):
         self.map.show_map(True)
 
 
-
 @dataclass()
 class Vertical(Route):
     pass
