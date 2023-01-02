@@ -10,7 +10,7 @@ class Map:
     photo_radius: int
     wind_distribution: Distributions
     overlap: float
-    beg: int = field(init=False)
+    beg: int = field(init=False)  # beg - beginning of wind stream
     direction: str = field(init=False)
 
     def __post_init__(self):
@@ -71,12 +71,15 @@ class Map:
 
         fig = plt.figure(figsize=(12, 12), dpi=100)
         ax1 = fig.add_subplot(111)
+
         for row in self.wind_table:
             for point in row:
                 if point[2] != 0:
                     ax1.plot(point[0], point[1], color="green", marker=self.wind_direction_symbol)
                 else:
                     ax1.plot(point[0], point[1], color="gray", marker="o")
+
+        ax1.plot(0, 0, color="yellow", marker="o")  # adding start point to the map
 
         if marked_drone_path and self.drone_map:
             for point in self.drone_map:
