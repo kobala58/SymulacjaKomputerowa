@@ -2,11 +2,10 @@ from dataclasses import dataclass, field
 from utils import Directions
 from wind_map import Map
 
+
 class BatteryException(Exception):
-    #TODO: stats dump to pdf
+    # TODO: stats dump to pdf
     pass
-
-
 
 
 @dataclass()
@@ -32,12 +31,11 @@ class Drone:
         self.points = []
         match self.move_method:
             case "v":
-                self.x = 0 # need to refractor this
+                self.x = 0  # need to refractor this
                 self.y = 0
             case "h":
                 self.x = 0
                 self.y = 0
-
 
     def __str__(self) -> str:
         print(self.__iner_task__)
@@ -48,11 +46,11 @@ class Drone:
         """
         method set drone on given coords
         """
-        if (0<=x<=self.map_size) and (0<=y<=self.map_size):
-            return [x,y]
+        if (0 <= x <= self.map_size) and (0 <= y <= self.map_size):
+            return [x, y]
         else:
-            raise ValueError(f"Drone needs to be placed within the boundary [{0},{self.map_size}], given parameters -> ({x},{y})")
-
+            raise ValueError(
+                f"Drone needs to be placed within the boundary [{0},{self.map_size}], given parameters -> ({x},{y})")
 
     def drain_battery(self, factor) -> None:
         """
@@ -61,7 +59,7 @@ class Drone:
         self.battery -= (self.battery_usage * factor).__round__(2)
         if self.battery <= 0:
             raise BatteryException
-    
+
     def get_wind_val(self) -> int:
         """
         Return value of wind on drone coords
@@ -74,7 +72,7 @@ class Drone:
         """
         factor = []
         wind_val = self.get_wind_val()
-        
+
         # take photo before movent
 
         self.take_photo()
@@ -82,11 +80,11 @@ class Drone:
         if wind_val != 0:
             match self.wind_direction:
                 case "l":
-                    factor = [1.2,1.2,0.8,1.5]
+                    factor = [1.2, 1.2, 0.8, 1.5]
                 case "r":
-                    factor = [1.2,1.2,1.5,0.8]
+                    factor = [1.2, 1.2, 1.5, 0.8]
         else:
-            factor = [1,1,1,1]
+            factor = [1, 1, 1, 1]
         try:
             match direction:
                 case Directions.UP:
@@ -117,9 +115,9 @@ class Drone:
             return False
 
         self.__iner_task__ = {
-                "direction": direction,
-                "size": size
-                }
+            "direction": direction,
+            "size": size
+        }
         for _ in range(size):
             try:
                 if take_photo:
@@ -128,7 +126,7 @@ class Drone:
             except BatteryException:
                 return False
         return True
-    
+
     def calc_dist_to_boundary(self, direction: Directions) -> int:
         """
         Calculate distance to boudary in selected direction
@@ -136,7 +134,7 @@ class Drone:
         match direction:
             case Directions.LEFT:
                 distance = self.x
-            
+
             case Directions.RIGHT:
                 distance = self.map_size - 1 - self.x
 
@@ -155,11 +153,11 @@ class Drone:
         """
         move over direction on photo radius units
         """
-        self.move_seps(size = self.photo_radius + 1,
-                direction = direction,
-                take_photo=False
-                )
-    
+        self.move_seps(size=self.photo_radius + 1,
+                       direction=direction,
+                       take_photo=False
+                       )
+
     def boundary_detector(self, size, direction) -> bool:
         """
         check if move_seps can be perfomed within boundaries
@@ -175,13 +173,15 @@ class Drone:
         """
         # TODO
         photo_points = [
-                [x,y] for x in range(self.x-self.photo_radius, self.x+self.photo_radius) for y in range(self.y-self.photo_radius, self.y+self.photo_radius)
-               ]
+            [x, y] for x in range(self.x - self.photo_radius, self.x + self.photo_radius) for y in
+            range(self.y - self.photo_radius, self.y + self.photo_radius)
+        ]
 
         self.drain_battery(0.1)
 
     def export_points(self):
         return self.points
+
 
 @dataclass()
 class Camera:
@@ -200,12 +200,11 @@ class BlackBox:
     map: Map
     drone: Drone
 
-
     def __post_init__(self):
         self.data = []
-    
+
     def save_data(self, pos: list, battery: float, photo: list):
         self.data.append([pos, battery, photo])
-    
+
     def __str__(self):
         return str(self.data)
