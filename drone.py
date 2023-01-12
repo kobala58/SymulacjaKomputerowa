@@ -13,8 +13,8 @@ class Drone:
     # TODO: rewrite Directions from 
     # comment
 
-    battery: float
-    battery_usage: float
+    battery: float # init value of battery capacity
+    battery_usage: float 
     photo_radius: int
     overlap: float
     move_method: str
@@ -64,6 +64,8 @@ class Drone:
         """
         Return value of wind on drone coords
         """
+
+        #TODO read wind data from Map class
         return 0
 
     def move(self, direction: Directions) -> None:
@@ -180,6 +182,9 @@ class Drone:
         self.drain_battery(0.1)
 
     def export_points(self):
+        """
+        sztuka dla sztuki
+        """
         return self.points
 
 
