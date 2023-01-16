@@ -5,7 +5,9 @@ from wind_map import Map
 
 class BatteryException(Exception):
     # TODO: stats dump to pdf
-    pass
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)
+
 
 
 @dataclass()
@@ -28,7 +30,10 @@ class Drone:
 
     def __post_init__(self):
         self.__iner_task__ = {"staus": "none"}
-        self.points = []
+        self.points = [] #storing drone flight pattern
+        self.photo_point = [] #storing photo list
+        self.battery_history = [] # storing battery values throught flight to futher plot 
+        self.battery_start_value = self.battery 
         match self.move_method:
             case "v":
                 self.x = 0  # need to refractor this
@@ -57,16 +62,26 @@ class Drone:
         Handler for battery drain, raises BatteryException when empty
         """
         self.battery -= (self.battery_usage * factor).__round__(2)
+        self.battery_history.append(self.battery)
         if self.battery <= 0:
-            raise BatteryException
+            # raise BatteryException()
+            print(f"Battery ends at point ({self.x},{self.y}) after ({len(self.points)}) meters") 
 
     def get_wind_val(self) -> int:
         """
         Return value of wind on drone coords
         """
+        value = self.map.get_wind_val(self.x, self.y)
+        return value
+    
 
-        #TODO read wind data from Map class
-        return 0
+    def read_map_data(self, map: Map) -> None:
+        """
+        Method for reading Map class data
+        """
+        self.map = map
+
+
 
     def move(self, direction: Directions) -> None:
         """
@@ -80,13 +95,15 @@ class Drone:
         self.take_photo()
 
         if wind_val != 0:
+            # rewrite to take care about wind value eg: [cosnt * wind_val]
+            # print(f"I got wind at position ({self.x},{self.y})")
             match self.wind_direction:
-                case "l":
-                    factor = [1.2, 1.2, 0.8, 1.5]
-                case "r":
-                    factor = [1.2, 1.2, 1.5, 0.8]
+                case Directions.LEFT:
+                    factor = [5*(1+wind_val), 5*(1+wind_val), 0.8, 10.0*(1+wind_val)] # IMPORTANT 
+                case Directions.RIGHT:
+                    factor = [5*(1+wind_val), 5*(1+wind_val), 10.0*(1+wind_val), 0.8] # IMPORTANT
         else:
-            factor = [1, 1, 1, 1]
+            factor = [2, 2, 2, 2]
         try:
             match direction:
                 case Directions.UP:
@@ -109,7 +126,7 @@ class Drone:
 
         self.points.append([self.x, self.y])
 
-    def move_seps(self, size: int, direction: Directions, take_photo: bool = True) -> bool:
+    def move_steps(self, size: int, direction: Directions, take_photo: bool = True) -> bool:
         """
         method to move drone x units on selected direction
         """
@@ -155,14 +172,14 @@ class Drone:
         """
         move over direction on photo radius units
         """
-        self.move_seps(size=self.photo_radius + 1,
+        self.move_steps(size=self.photo_radius + 1,
                        direction=direction,
                        take_photo=False
                        )
 
     def boundary_detector(self, size, direction) -> bool:
         """
-        check if move_seps can be perfomed within boundaries
+        check if move_steps can be perfomed within boundaries
         """
         if size <= self.calc_dist_to_boundary(direction):
             return True
@@ -178,7 +195,7 @@ class Drone:
             [x, y] for x in range(self.x - self.photo_radius, self.x + self.photo_radius) for y in
             range(self.y - self.photo_radius, self.y + self.photo_radius)
         ]
-
+        self.photo_point.append(photo_points)
         self.drain_battery(0.1)
 
     def export_points(self):
@@ -186,6 +203,37 @@ class Drone:
         sztuka dla sztuki
         """
         return self.points
+
+    def rth(self) -> None:
+        """
+        Reurn to starting point (0,0)        
+        """
+        down_distance = self.calc_dist_to_boundary(Directions.DOWN)
+        self.move_steps(down_distance, Directions.DOWN,take_photo=False)
+        self.move_steps(self.calc_dist_to_boundary(Directions.LEFT), Directions.LEFT, take_photo=False)
+
+
+
+    def plot_battery_usage(self, method: str = "value"):
+        """
+            Method for plotting battery usage
+        """ 
+        match method:
+            case "percentage":
+                data = [(x/self.battery_start_value).__round__(5) for x in self.battery_history]
+            case "value":
+                data = self.battery_history
+            case _:
+                raise ValueError
+
+        import matplotlib.pyplot as plt
+        fig = plt.figure(figsize=(12, 12), dpi=100)
+        ax1 = fig.add_subplot(111)
+        plt.plot(data)
+        print(f"Remain: {data[-1]}% battery")
+        plt.show()
+
+        
 
 
 @dataclass()

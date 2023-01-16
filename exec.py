@@ -5,7 +5,7 @@ from wind_map import Distributions, Map
 if __name__ == "__main__":
     # create firt working example
     drone = Drone(
-        battery=10000,
+        battery=3000,
         battery_usage=1,
         photo_radius=5,
         move_method="v",
@@ -14,6 +14,7 @@ if __name__ == "__main__":
         map_size=50,
         wind_start=13,
         wind_stop=55
+        # wind mod = [3, 1.0, 1.5]
     )
 
     map = Map(
