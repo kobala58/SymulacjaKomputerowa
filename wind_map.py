@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 import random
 from utils import Directions, Distributions
-
+import numpy as np
 
 @dataclass()
 class Map:
@@ -27,11 +27,9 @@ class Map:
         self.wind_table_generator()  # CREATE AN (x,y) -> val relation
 
     def wind_table_generator(self):
-        print("test")
         match self.wind_distribution:
             case Distributions.NORMAL:
-                # todo: write this Distribution
-                pass
+                self.__normal_distrib_wind_generator()
 
             case Distributions.UNIFORM:
                 pass
@@ -39,11 +37,61 @@ class Map:
             case Distributions.FIXED_VALUE:
                 self.__fixed_val_wind_generator()
 
-    def __fixed_val_wind_generator(self) -> None:
+    def __normal_distrib_wind_parser(self, distrib: list) -> list:
+        """
+        Helper method to parse normal Distribution to simulate wind
+        """
+        data = sorted([(abs(x)).__round__(1) for x in distrib],reverse=True)
+        wind_data = [data[0]]
+        for idx,elem in enumerate(data):
+            if idx == 0:
+                continue
+            elif idx%2 == 0:
+                wind_data = [elem, *wind_data]
+            else:
+                wind_data.append(elem)
+        return wind_data
+    
+    def __normal_distrib_wind_generator(self) -> None:
         """
         generate wind table from fixed value (in this case binary)
         """
-        print("here")
+        # wind table
+        self.wind_table = []
+        
+        # normal distrib config vars, i should move this outside
+        MU = 0
+        SIGMA = 0.1
+
+        flag = False # flag for signaling row with wind
+
+        
+        if len(self.wind_table) != 0:
+            raise ValueError
+
+        wind_distribution = self.__normal_distrib_wind_parser(list(np.random.normal(MU, SIGMA, self.wind_size)))
+        i = 0 # indicator 
+
+        for x in range(self.size): # first iterating over rows
+            tmp = []
+            for y in range(self.size):
+                if self.beg <= y <= self.beg + self.wind_size:
+                    flag = True #set flag to true to trigger i 
+                    tmp.append([x, y, wind_distribution[i]]) # generate abs of wind Distribution 
+                else:
+                    tmp.append([x, y, 0])
+            if flag:
+                i += 1
+
+
+            self.wind_table.append(tmp)
+
+
+    def __fixed_val_wind_generator(self) -> None:
+        """
+        generate wind table from normal Distribution (in this case in range 0.1 - 1.5)
+        """
+        
         self.wind_table = []
         for x in range(self.size):
             tmp = []

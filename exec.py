@@ -22,9 +22,13 @@ if __name__ == "__main__":
         wind_size=20,
         photo_radius=3,
         overlap=0.5,
-        wind_distribution=Distributions.FIXED_VALUE
-    )
+        wind_distribution=Distributions.FIXED_VALUE)
     route = Horizontal(
         drone, map
     )
+
     route.execute_route()
+    # Plan:
+    # 1. Generate 100 map
+    # 2. Iterate over them witch two drones: one horizontal and one vertical
+    # 3. 
