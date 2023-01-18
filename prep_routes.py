@@ -54,7 +54,33 @@ class Horizontal(Route):
 
 @dataclass()
 class Vertical(Route):
-    pass
+    drone: Drone
+    map: Map
+
+    def execute_route(self):
+        """
+        #
+        """
+
+        while self.drone.y + self.drone.photo_radius <= self.map.size:
+            # move up -> calc distancte to top and move
+            steps = self.drone.calc_dist_to_boundary(Directions.RIGHT)
+            self.drone.move_steps(steps, Directions.RIGHT)
+            self.drone.move_photo_radius(Directions.UP)
+            steps = self.drone.calc_dist_to_boundary(Directions.LEFT)
+            self.drone.move_steps(steps, Directions.LEFT)
+
+            if self.drone.y + self.drone.photo_radius >= self.map.size:
+                break
+            else:
+                self.drone.move_photo_radius(Directions.UP)
+
+        else:
+            self.drone.move_steps(self.drone.calc_dist_to_boundary(Directions.UP), Directions.UP)
+            self.drone.rth()
+        self.map.upload_drone_movent(self.drone.points)
+        self.drone.plot_battery_usage(method="percentage")
+        self.map.show_map(True)
 
 
 @dataclass()
