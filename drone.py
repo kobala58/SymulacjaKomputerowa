@@ -19,7 +19,6 @@ class Drone:
     battery_usage: float 
     photo_radius: int
     overlap: float
-    move_method: str
     wind_direction: Directions
     map_size: int
     wind_start: int
@@ -34,18 +33,20 @@ class Drone:
         self.photo_point = [] #storing photo list
         self.battery_history = [] # storing battery values throught flight to futher plot 
         self.battery_start_value = self.battery 
-        match self.move_method:
-            case "v":
-                self.x = 0  # need to refractor this
-                self.y = 0
-            case "h":
-                self.x = 0
-                self.y = 0
+        self.x = 0
+        self.y = 0
 
     def __str__(self) -> str:
         print(self.__iner_task__)
         text = f"Position ({self.x},{self.y})\n Battery: ({self.battery})"
         return text
+    
+    def __reset_to_start_params__(self):
+        """
+        Reseting battery, position and photos 
+        """
+        self.battery = self.battery_start_value
+        self.__post_init__()
 
     def set_starting_poing(self, x, y) -> list:
         """
@@ -80,8 +81,8 @@ class Drone:
         Method for reading Map class data
         """
         self.map = map
-
-
+        self.wind_direction = self.map.wind_direction # read new wind direcrtion when inserting new map
+        self.__reset_to_start_params__() # reset to starting parameteres when loading new map
 
     def move(self, direction: Directions) -> None:
         """
