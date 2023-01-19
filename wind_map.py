@@ -60,8 +60,8 @@ class Map:
         self.wind_table = []
         
         # normal distrib config vars, i should move this outside
-        MU = 0
-        SIGMA = 0.1
+        MU = 1
+        SIGMA = 0.5
 
         flag = False # flag for signaling row with wind
 
@@ -69,19 +69,22 @@ class Map:
         if len(self.wind_table) != 0:
             raise ValueError
 
-        wind_distribution = self.__normal_distrib_wind_parser(list(np.random.normal(MU, SIGMA, self.wind_size)))
-        i = 0 # indicator 
-
-        for x in range(self.size): # first iterating over rows
+        wind_distribution = self.__normal_distrib_wind_parser(list(np.random.normal(MU, SIGMA, self.wind_size+1)))
+        i = 0 # indicator
+        # print(f"wind_size = {self.wind_size}\nlen() = {len(wind_distribution)}")
+        # print(f"Beg: {self.beg}\nEnd: {self.beg+self.wind_size}")
+        for y in range(self.size): # first iterating over rows
             tmp = []
-            for y in range(self.size):
+            for x in range(self.size):
                 if self.beg <= y <= self.beg + self.wind_size:
-                    flag = True #set flag to true to trigger i 
+                    flag = True #set flag to true to trigger i
                     tmp.append([x, y, wind_distribution[i]]) # generate abs of wind Distribution 
                 else:
                     tmp.append([x, y, 0])
             if flag:
                 i += 1
+                # print(f"Row {y} - used")
+                flag = False
 
 
             self.wind_table.append(tmp)
