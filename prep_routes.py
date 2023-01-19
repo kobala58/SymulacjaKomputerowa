@@ -10,6 +10,14 @@ class Route:
 
     def execute_route(self):
         pass
+    
+
+    @classmethod
+    def run_test(cls, drone: Drone, map: Map):
+        val = cls(drone, map)
+        val.drone.read_map_data(val.map)
+        val.execute_route()
+        val.stats()
 
     def stats(self) -> dict:
         return {}
@@ -44,6 +52,8 @@ class Horizontal(Route):
         self.map.upload_drone_movent(self.drone.points)
         self.drone.plot_battery_usage(method="percentage")
         self.map.show_map(True)
+        
+
 
     def stats(self):
         sample = {
