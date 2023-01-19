@@ -11,13 +11,12 @@ class Route:
     def execute_route(self):
         pass
     
-
     @classmethod
     def run_test(cls, drone: Drone, map: Map):
         val = cls(drone, map)
         val.drone.read_map_data(val.map)
         val.execute_route()
-        val.stats()
+        return val.stats()
 
     def stats(self) -> dict:
         return {}
@@ -50,8 +49,8 @@ class Horizontal(Route):
             self.drone.move_steps(self.drone.calc_dist_to_boundary(Directions.UP), Directions.UP)
             self.drone.rth()
         self.map.upload_drone_movent(self.drone.points)
-        self.drone.plot_battery_usage(method="percentage")
-        self.map.show_map(True)
+        # self.drone.plot_battery_usage(method="percentage")
+        # self.map.show_map(True)
         
 
 
@@ -59,8 +58,10 @@ class Horizontal(Route):
         sample = {
                  "completed": True,
                  "photos_captured": len(self.drone.photo_point),
-                 "battery_remain": self.drone.battery
+                 "battery_remain": self.drone.battery.__round__(2)
                  }
+        return sample
+
 
 @dataclass()
 class Vertical(Route):
@@ -80,18 +81,25 @@ class Vertical(Route):
             steps = self.drone.calc_dist_to_boundary(Directions.LEFT)
             self.drone.move_steps(steps, Directions.LEFT)
 
-            if self.drone.y + self.drone.photo_radius >= self.map.size:
+            if self.drone.y + self.drone.photo_radius >= self.map.size + 1:
                 break
             else:
                 self.drone.move_photo_radius(Directions.UP)
 
         else:
-            self.drone.move_steps(self.drone.calc_dist_to_boundary(Directions.UP), Directions.UP)
+            self.drone.move_steps(self.drone.calc_dist_to_boundary(Directions.RIGHT), Directions.RIGHT)
             self.drone.rth()
         self.map.upload_drone_movent(self.drone.points)
-        self.drone.plot_battery_usage(method="percentage")
-        self.map.show_map(True)
-
+        # self.drone.plot_battery_usage(method="percentage")
+        # self.map.show_map(True)
+    
+    def stats(self) -> dict:
+        sample = {
+                 "completed": True,
+                 "photos_captured": len(self.drone.photo_point),
+                 "battery_remain": self.drone.battery.__round__(2)
+                 }
+        return sample
 
 @dataclass()
 class Hilbert(Route):

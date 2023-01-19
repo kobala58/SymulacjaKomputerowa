@@ -45,6 +45,7 @@ class Drone:
         """
         self.battery = self.battery_start_value
         self.__post_init__()
+        # print(f"post_init:\n(x,y) = ({self.x},{self.y})")
 
     def set_starting_poing(self, x, y) -> list:
         """
