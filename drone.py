@@ -20,10 +20,8 @@ class Drone:
     photo_radius: int
     overlap: float
     wind_direction: Directions
-    map_size: int
-    wind_start: int
-    wind_stop: int
-    x: int = field(init=False)
+    map_size: int = field(init=False) # important - loaded when inserting new map into drone
+    x: int = field(init=False) 
     y: int = field(init=False)
     __iner_task__: dict = field(init=False)
 
@@ -82,7 +80,8 @@ class Drone:
         """
         self.map = map
         self.wind_direction = self.map.wind_direction # read new wind direcrtion when inserting new map
-        self.__reset_to_start_params__() # reset to starting parameteres when loading new map
+        self.map_size = self.map.size
+        self.__reset_to_start_params__()
 
     def move(self, direction: Directions) -> None:
         """
