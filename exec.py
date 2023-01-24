@@ -3,6 +3,8 @@ from drone import Directions, Drone
 from prep_routes import Horizontal, Vertical
 from wind_map import Distributions, Map
 import pandas as pd
+from scipy.stats import shapiro, wilcoxon
+
 
 def callmethod_approach() -> None:
     TEST_SIZE = 100
@@ -39,7 +41,14 @@ def callmethod_approach() -> None:
 
     results = list(zip(vertical_results, horizontal_results))
     df = pd.DataFrame(results, columns=["verical", "horizontal"])
+    print(shapiro(df["verical"]))
+    print(shapiro(df["horizontal"]))
+    diff = df["verical"] - df["horizontal"]
+    print(wilcoxon(diff))
+    print(wilcoxon(diff, alternative="less"))
     df.to_csv('result.csv', sep=":", decimal=",")
+
+
 def standard_approcach() -> None:
     pass
 
